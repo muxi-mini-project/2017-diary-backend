@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from flask import Flask
+<<<<<<< HEAD
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_debugtoolbar import DebugToolbarExtension
@@ -44,3 +45,12 @@ app.register_blueprint(main, url_prefix='/main')
 from auth import auth
 app.register_blueprint(auth, url_prefix="/auth")
 
+=======
+
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your secret key is here'
+
+
+from . import views, forms
+>>>>>>> ec2645b42e8d0b874bf3ca3e57dd7dd3e98d9fb0

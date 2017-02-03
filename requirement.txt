@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 appdirs==1.4.0
 click==6.7
 Flask==0.12
@@ -9,3 +10,9 @@ pkg-resources==0.0.0
 pyparsing==2.1.10
 six==1.10.0
 Werkzeug==0.11.15
+=======
+
+Flask==0.10.1
+Flask-WTF==0.10.0
+
+>>>>>>> ec2645b42e8d0b874bf3ca3e57dd7dd3e98d9fb0
