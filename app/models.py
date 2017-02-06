@@ -96,6 +96,27 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return "<User %r>" % self.username
 
+    # 生成令牌
+    def generate_token(self,expiration=1800) :
+        s = Serializer(current_app.config['SECRET_KEY'],expiration)
+        return s.dumps({'confirm':self.id})
+
+    # 检验令牌
+    def confirm(self,token) :
+        s = Serializer(current_app.config['SECRET_KEY'],expiration)
+        try : 
+            data = s.loads(token)
+        except : 
+            return False
+        if  data.get('confirm') != self.id :
+            return False 
+        self.comfirmed = True 
+        db.session.add(self)
+        db.session.commit()
+        return True 
+
+
+
 
 class AnonymousUser(AnonymousUserMixin):
     """ anonymous user """
