@@ -26,7 +26,7 @@ def logout():
     flash('You have logged out !')
     return redirect(url_for('auth.login'))
 
-#用户注册路由 
+#用户注册路由 ,发送邮件
 @auth.route('/register',methods=['GET','POST'])
 def register() :
     form = Register() 
@@ -36,4 +36,6 @@ def register() :
                     password=form.passwors.data)
         db.session.add(user)
         db.session.commit()
-        
+        return redirect(url_for('main.index')) #转到首页? 存疑 
+    return render_template(' ') #存疑 
+
