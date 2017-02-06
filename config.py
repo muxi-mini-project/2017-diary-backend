@@ -27,10 +27,13 @@ common configuration
 """
 class Config:
     """common configuration"""
-    SECRET_KEY = os.environ.get("SECRET_KEY") or "hard to guess string"
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "yzychl"
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_RECORD_QUERIES = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    FLASKY_MAIL_SUBJECT_PREFIX = "时光日记"  # 邮件标题暂定
+    FLASKY_MAIL_SENDER = "" # 叫啥呢? 想不出来! 
+    FLASKY_FOLLOWERS_PER_PAGE =   #待定
 
     @staticmethod
     def init_app(app):
