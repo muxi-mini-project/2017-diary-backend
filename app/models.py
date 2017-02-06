@@ -73,6 +73,18 @@ class User(db.Model, UserMixin):
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(164))
 
+    followed = db.relationship('Follow' ,
+                                foreign_keys=[Follow.follower_id] ,
+                                backref=db.backref('follower',lazy='joined'),
+                                lazy='dynamic',
+                                cascade='all, delete-orphan')
+    followers = db.relationship('Follow' ,
+                                foregin_keys=[Follow.followed_id] ,
+                                backref=db.backref('followed',lazy='joined'),
+                                lazy='dynamic',
+                                cascade='all, delete-orphan')
+                                
+
     @property
     def password(self):
         raise AttributeError('password is not readable')
@@ -115,6 +127,31 @@ class User(db.Model, UserMixin):
         db.session.commit()
         return True 
 
+    #关注关系的辅助方法
+    def follow(self,user) :
+        if not self.is_following(user) :
+            f = Follow(follower=self,followed=user)
+            db.session.add(f)
+            db.seesion.commit()
+
+    def unfollow(self,user) :
+        f = self.followed.filter_by(followed_id=user.id).first()
+        if f :
+            db.session.delete(f)
+            db.session.commit()
+            
+    def is_following(self,user) :
+        return self.followed.filter_by(followed_id=user.id).first() is not  None 
+
+    def is_followed_by(self,user) :
+        return self.followers.filter_by(follower_id=user.id).first() is not  None
+
+#关注关联表的模型实现
+class Follow(db.Model) :
+    __tablename__ = 'follows'
+    follower_id = db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)
+    fokkowed_id = db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)
+    timestamp = db.Column(db.DateTime,default=datetime.utcnow) #是否需要关注时间 ? 暂定
 
 
 
