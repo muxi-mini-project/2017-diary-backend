@@ -5,6 +5,7 @@ from flask import render_template, url_for, redirect, flash
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import User
 from .forms import LoginForm
+from ..email import send_email 
 
 #登录路由
 @auth.route('/login', methods=['GET', 'POST'])
@@ -36,6 +37,8 @@ def register() :
                     password=form.passwors.data)
         db.session.add(user)
         db.session.commit()
+        token = user.generate_token()
+        send_email(user.email,'确认帐号',)  # 是否需要邮箱验证 ? 待定 !  
         return redirect(url_for('main.index')) #转到首页? 存疑 
     return render_template(' ') #存疑 
 
