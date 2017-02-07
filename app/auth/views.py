@@ -16,15 +16,15 @@ def login():
         if user is not None and user.verify_password(form.password.data):
             login_user(user,form.remember.data)
             return redirect('main.index')
-        flash('Invaild email or password.')
-    return render_template('auth/login.html', form=form)
+        flash('邮箱或密码不正确')
+    return render_template(' ', form=form) # 待定
 
 #用户登出路由
 @login_required
 @auth.route('/logout')
 def logout():
     logout_user()
-    flash('You have logged out !')
+    flash('已退出登录')
     return redirect(url_for('auth.login'))
 
 #用户注册路由 ,发送邮件
