@@ -77,6 +77,8 @@ class User(db.Model, UserMixin):
     introduction = db.Column(db.Text())
     gender = db.Column(db.String(6)) # 性别应该如何选择 ? 
     phone_number = db.Column(db.String(11)) # 电话号码怎么办 
+    comments = db.relationship('Comment',backref='author',lazy='dynamic')
+    posts = db.relationship('Post',backref='author',lazy='dynamic')
 
     followed = db.relationship('Follow' ,
                                 foreign_keys=[Follow.follower_id] ,
@@ -150,6 +152,20 @@ class User(db.Model, UserMixin):
 
     def is_followed_by(self,user) :
         return self.followers.filter_by(follower_id=user.id).first() is not  None
+  
+   # 点赞
+    def vote_post(self, post):
+        vote = self.voted_posts.filter_by(post_id=post.id).first()
+        if vote is None:
+            vote = PostVote(user_id=self.id,post_id=post.id)
+            db.session.add(vote)
+            db.session.commit()
+            return True
+        else  :
+            db.session.delete(vote)
+            db.session.commit()                                                                                    
+            return False
+
 
 #关注关联表的模型实现
 class Follow(db.Model) :
@@ -168,4 +184,31 @@ class AnonymousUser(AnonymousUserMixin):
 login_manager.anonymous_user = AnonymousUser
 
 # you can writing your models here:
+
+# 评论模型
+class Comment(db,Model) :
+    __table__ = 'comments' 
+    id = db.Column(db.Integer , primary_key=True)
+    body = db.Column(db.Text)
+    body_html = db.Column(db.Text) #存疑 ? 
+    timestamp = db.Column(db.DateTime,index=True,default=datetime.utcnow)
+    author_id = db.Column(db.Integer,db.ForeignKey('users.id'))
+    post_id = db.Column(db.Integer,db.ForeignKey('posts.id'))
+
+    @staticmethod
+    def on_changed_body(target,value,oldvalue,initiator) :
+        allowed_tags = ['a','abbr','acronym','b','code','em','i','strong']
+        target.body_html =
+        bleach.linkify(bleach.clean(markdown(value,output_format='html'),tags=allowed_tags,strip=True))
+
+db.event.listen(Comment.body,'set',Comment.on_changed_body) # 存疑
+
+class post(db.Model) :
+    __tablename__ = 'posts' 
+    id = db.Column(db.Integer,primary_key=True)
+    body = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime,index=True,default=datetime.utcnow)
+    author_id = db.Column(db.Integer , db.ForeignKey='users.id')
+    comments = db.relationship('Comment',backref='post',lazy='dynamic')
+    likes = db.Column(db.Integer , default=0) #初始化点赞为0 , 存疑
 
