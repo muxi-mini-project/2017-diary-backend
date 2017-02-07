@@ -36,6 +36,7 @@ class Config:
     FLASKY_FOLLOWERS_PER_PAGE =   #待定
     UPLOAD_FOLDER = '\diary\hah\upload' # 存图片的路径 ,暂定
     ALLOWED_EXTENSIONS=set(['png','jpg','jpeg']) #可以选择的文件拓展名 
+    FLASKY_COMMENTS_PER_PAGE = # 待定 
 
     @staticmethod
     def init_app(app):
