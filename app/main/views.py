@@ -8,7 +8,6 @@ from flask import render_template
 def test():
     return "<h1>just tell you everything is ok!</h1>"
 
-# 待添加 关注路由 和 取消关注 路由 
 
 
 # 查看关注者路由 
@@ -97,4 +96,51 @@ def edit_profile() :
     return render_template('') # 待定 , 其实这个地方我很疑惑 QWQ!
 
 
+# 支持博客文章评论
+@main.route('/posts/<int:id>',methods=['GET','POST'])
+def post(id) :
+    post = Post.query.get_or_404(id)
+    form = CommentForm()
+    if form.validate_on_submit() :
+        comment = Comment(body=form.body.data ,
+                          post=post,
+                          author=current_user._get_current_object())
+        db.session.add(comment)
+        db.session.commit()
+        flash('评论已发布')
+        return redirect(url_for('.post',id=post.id,page=-1))
+    page = request.args.get('page',1,type=int)
+    if page == -1 :
+        page = (post.comments.count()-1) / current_app.config['FLASKY_COMMENTS_PER_PAGE'] + 1
+    pagination = post.comments.order_by(Comment.timestamp.asc()).pagination(
+            page,per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
+            error_out=False)
+    comments = pagination.itmes 
+    return render_template('post.html',posts=[post],form=form,
+            comments=comments,pagination=pagination) # 存疑 另: 如何在首页加入指向评论的链接
 
+
+# 处理博客文章的首页路由
+@main.route('/',methods=['GET','POST']) # 为什么是这样的 ? 
+def index() :
+    form = PostForm()
+    if current_user.can(Permission.WRITE_ARTICLES) and \  # 是否需要检验能有写日记  ?
+            form.validate_on_submit() :
+        post  = Post(body=form.body.data,
+                     author=current_user._get_current_object())
+        db.session.add(post)
+        db.session.commit()
+        return redirect(url_for('.index'))
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template('   ',form=form,posts=posts) # 待定 
+
+#点赞
+@main.route('/like_post',methods=['POST'])
+@login_required
+def like_post() :
+    if  current_user.is_authenticated :
+          post = Post.query.get_or_404(int(request.form.get('id')))  #post 方法的数据存在request.form.get里
+        if current_user.like_post(post):
+            return 'like'
+        else:
+            return 'cancel'
