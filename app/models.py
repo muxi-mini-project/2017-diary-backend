@@ -37,7 +37,7 @@ class Role(db.Model):
     default = db.Column(db.Boolean, default=False, index=True)
     permissions = db.Column(db.Integer)
     users = db.relationship('User', backref='role', lazy='dynamic')
-
+    
     @staticmethod
     def insert_roles():
         roles = {
@@ -72,6 +72,11 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(164), info={'validator' : Email()})
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(164))
+    portrait = db.Column(db.String(128),default='None') # 默认头像是什么 ?  待定
+    name = db.Column(db.String(64))
+    introduction = db.Column(db.Text())
+    gender = db.Column(db.String(6)) # 性别应该如何选择 ? 
+    phone_number = db.Column(db.String(11)) # 电话号码怎么办 
 
     followed = db.relationship('Follow' ,
                                 foreign_keys=[Follow.follower_id] ,
@@ -87,7 +92,7 @@ class User(db.Model, UserMixin):
 
     @property
     def password(self):
-        raise AttributeError('password is not readable')
+        raise AttributeError('password is not readable') # 密码不可读 ? 
 
     @password.setter
     def password(self, password):
