@@ -76,7 +76,7 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String(64))
     introduction = db.Column(db.Text())
     gender = db.Column(db.String(6)) # 性别应该如何选择 ? 
-    phone_number = db.Column(db.String(11)) # 电话号码怎么办 
+    phone_number = db.Column(db.String(11))  
     comments = db.relationship('Comment',backref='author',lazy='dynamic')
     posts = db.relationship('Post',backref='author',lazy='dynamic')
 
@@ -203,12 +203,51 @@ class Comment(db,Model) :
 
 db.event.listen(Comment.body,'set',Comment.on_changed_body) # 存疑
 
-class post(db.Model) :
+class Post(db.Model) :
     __tablename__ = 'posts' 
     id = db.Column(db.Integer,primary_key=True)
     body = db.Column(db.Text)
+    body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime,index=True,default=datetime.utcnow)
     author_id = db.Column(db.Integer , db.ForeignKey='users.id')
     comments = db.relationship('Comment',backref='post',lazy='dynamic')
-    likes = db.Column(db.Integer , default=0) #初始化点赞为0 , 存疑
+    likes = db.relationship('Like',backref='post', lazy='dynamic')
+    
+    @staticmethod
+    def on_changed_body(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b','blockquote', 'code',
+                        'em', 'i', 'li', 'ol',  'pre', 'strong', 'ul',
+                        'h1', 'h2', 'h3','p']
+        target.body_html = bleach.linkify(bleach.clean(
+            markdown(value,output_format='html'),
+            tags=allowed_tags,strip=True))
+
+    def to_json(self) :
+        json_post = { 
+                'url' : url_for('api.get_post',id=self.id , _external=True) ,
+                'body' : self.body , 
+                'body_html' : self.body_html , 
+                'timestamp' : self.timestamp ,
+                'author' : url_for('api.get_user',id=self.author_id,_external=True) ,
+                'comments' : url_for('api.get_post_comments',id=self.id ,_external=True) ,
+                'comment_count' : self.comments.count() ,
+                'like_count' : self.likes.count() ,
+                
+                }
+        return json_post 
+
+    
+    @staticmethod
+    def from_json(json_self) :
+        body = json_post.get('body')
+        return  Post(body=body)
+
+#点赞
+class Like(db.Model) :
+    __table__ = 'like' 
+    id = db.Column(db.Integer,primary_key=True)
+    post_id = db.Column(db.Integer,db.ForeignKey='posts.id')
+
+    def __repr__(self):
+        return "<Like %r>" % self.id
 
