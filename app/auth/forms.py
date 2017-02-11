@@ -1,6 +1,6 @@
-# coding: utf-8
+#coding: utf-8
 
-from flask_wtf import Form
+'''from flask_wtf import Form
 from wtforms import StringField, PasswordField, SubmitField , BooleanField 
 from wtforms.validators import DataRequired ,Email , Length 
 from ..models import User 
@@ -14,7 +14,7 @@ class LoginForm(Form):
     
 
 #用户注册表单
-class Register(Form):
+class RegisterForm(Form):
     email = StringField('email',validators=[DataRequired() , Length(1,64),Email()])
     username =
     StringField('username',validators=[DataRequired(),Length(1,64),Regexp('^[A-Za-z][A-Za-z0-9_.]*$',0,'用户名必须只包括数字,字母,下划线或点号.')])
@@ -32,5 +32,5 @@ class Register(Form):
             raise ValidationError('用户已存在!')
     
 
-
+'''
 

@@ -1,4 +1,4 @@
-coding  : utf-8
+#coding: utf-8
 from flask import jsonify , g, request 
 import json 
 from ..models import User 
@@ -6,7 +6,7 @@ from  . import api
 from .. import db
 
 #查看个人资料
-@api.route('/profile/<int:id>/'methods=['GET'])
+@api.route('/profile/<int:id>/',methods=['GET'])
 def get_profiles(id) :
     use = User.query.get_or_404(id)
     return Response(json.dumps({
@@ -16,7 +16,7 @@ def get_profiles(id) :
             "portrait" : user.portrait ,
             "introduction" : user.introduction,
             "phone_number" : user.phone_number ,
-            }) , mimetype="application/json"
+            }) , mimetype="application/json" )
 
 
 #编辑个人资料

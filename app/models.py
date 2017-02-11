@@ -1,4 +1,4 @@
-# coding: utf-8
+#coding: utf-8
 """
 sql models
 
@@ -6,12 +6,13 @@ sql models
     -- http://flask-sqlalchemy.pocoo.org/2.1/
 
 """
-
+from flask import current_app , request
 from . import db, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, AnonymousUserMixin, current_user
 from wtforms.validators import Email
-
+from datetime import datetime
+from itsdangerous import JSONWebSignatureSerializer as Serializer
 # permissions
 class Permission:
     """
@@ -63,6 +64,13 @@ class Role(db.Model):
     def __repr__(self):
         return '<Role %r>' % self.name
 
+#关注关联表的模型实现
+class Follow(db.Model):
+    __tablename__ = 'follows'
+    follower_id = db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)
+    followed_id = db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)
+    timestamp = db.Column(db.DateTime,default=datetime.utcnow()) #是否需要关注时间 ? 暂定
+
 
 class User(db.Model, UserMixin):
     """user"""
@@ -72,10 +80,10 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(164), info={'validator' : Email()})
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(164))
-    portrait = db.Column(db.String(128),default='None') # 默认头像是什么 ?  待定
+    portrait = db.Column(db.String(128),default='None')
     name = db.Column(db.String(64))
     introduction = db.Column(db.Text())
-    gender = db.Column(db.String(6)) # 性别应该如何选择 ? 
+    gender = db.Column(db.String(6))  #性别应该如何选择 
     phone_number = db.Column(db.String(11))  
     comments = db.relationship('Comment',backref='author',lazy='dynamic')
     posts = db.relationship('Post',backref='author',lazy='dynamic')
@@ -86,7 +94,7 @@ class User(db.Model, UserMixin):
                                 lazy='dynamic',
                                 cascade='all, delete-orphan')
     followers = db.relationship('Follow' ,
-                                foregin_keys=[Follow.followed_id] ,
+                                foreign_keys=[Follow.followed_id] ,
                                 backref=db.backref('followed',lazy='joined'),
                                 lazy='dynamic',
                                 cascade='all, delete-orphan')
@@ -116,9 +124,9 @@ class User(db.Model, UserMixin):
         return "<User %r>" % self.username
 
     # 生成令牌
-    def generate_token(self,expiration=1800) :
-        s = Serializer(current_app.config['SECRET_KEY'],expiration)
-        return s.dumps({'confirm':self.id})
+    def generate_auth_token(self) :
+        s = Serializer(current_app.config['SECRET_KEY'])
+        return s.dumps({'id':self.id})
 
     # 检验令牌
     def confirm(self,token) :
@@ -177,14 +185,6 @@ class User(db.Model, UserMixin):
 
 
 
-#关注关联表的模型实现
-class Follow(db.Model) :
-    __tablename__ = 'follows'
-    follower_id = db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)
-    fokkowed_id = db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)
-    timestamp = db.Column(db.DateTime,default=datetime.utcnow) #是否需要关注时间 ? 暂定
-
-
 
 class AnonymousUser(AnonymousUserMixin):
     """ anonymous user """
@@ -196,8 +196,8 @@ login_manager.anonymous_user = AnonymousUser
 # you can writing your models here:
 
 # 评论模型
-class Comment(db,Model) :
-    __table__ = 'comments' 
+class Comment(db.Model):
+    __tablename__ = 'comments' 
     id = db.Column(db.Integer , primary_key=True)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime,index=True,default=datetime.utcnow)
@@ -220,18 +220,18 @@ class Comment(db,Model) :
     def from_json(json_comment) :
         body = json_comment.get('body')
         timestamp = json_comment.get('timestamp')
-        author  json_commnet.get('author')
+        author = json_commnet.get('author')
         return Comment(body=body,timestamp=timestamp,author=author)
 
 
 
 
-class Post(db.Model) :
+class Post(db.Model):
     __tablename__ = 'posts' 
     id = db.Column(db.Integer,primary_key=True)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime,index=True,default=datetime.utcnow)
-    author_id = db.Column(db.Integer , db.ForeignKey='users.id')
+    author_id = db.Column(db.Integer , db.ForeignKey('users.id'))
     comments = db.relationship('Comment',backref='post',lazy='dynamic')
     likes = db.relationship('Like',backref='post', lazy='dynamic')
     picture = db.Column(db.PickleType) # ? 
@@ -264,9 +264,9 @@ class Post(db.Model) :
 
 #点赞
 class Like(db.Model) :
-    __table__ = 'like' 
+    __tablename__ = 'like' 
     id = db.Column(db.Integer,primary_key=True)
-    post_id = db.Column(db.Integer,db.ForeignKey='posts.id')
+    post_id = db.Column(db.Integer,db.ForeignKey('posts.id'))
 
     def __repr__(self):
         return "<Like %r>" % self.id

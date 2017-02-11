@@ -1,3 +1,4 @@
+#coding: utf-8
 from flask import jsonify , request , g , url_for , current_app
 from .. import db
 from ..models import Post ,Comment 
@@ -5,7 +6,7 @@ from . import api
 
 
 #某篇日记的所有评论
-@api.route('/posts/<int:id>/comments')
+@api.route('/posts/<int:id>/comments',methods=['POST'])
 def get_post_comments(id) :
     post = Post.query.get_or_404(id)
     page = request.args.get('page',1,type=int)

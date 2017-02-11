@@ -13,7 +13,7 @@ import flask_admin as admin
 from flask_login import current_user
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
-from app import app, db
+from app.__init__ import app, db
 from app.models import AnonymousUser
 from flask import redirect, flash, url_for
 

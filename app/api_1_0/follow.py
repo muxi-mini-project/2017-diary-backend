@@ -1,4 +1,4 @@
-coding utf-8
+#coding: utf-8
 from flask import url_for , flash , request , g 
 from flask_login import login_required , current_user
 from .. import db 
@@ -6,7 +6,7 @@ from ..models import User
 from . import api 
 
 #关注
-@api.route('/follow/<username>')
+@api.route('/follow/<username>',methods=['POST','GET'])
 @login_required 
 def follow(username): 
     user = User.query.filter_by(username=username).first()

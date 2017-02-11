@@ -1,5 +1,5 @@
 # coding: utf-8
-<<<<<<< HEAD
+
 """
 project management
  -- database management
@@ -35,13 +35,12 @@ project management
 
 import sys
 import os
-from flask.ext.script import Manager, Shell
-from flask.ext.migrate import Migrate, MigrateCommand
+from flask_script import Manager, Shell
+from flask_migrate import Migrate, MigrateCommand
 from app import db, app
 from app.models import User, Role
 
 # 编码设置
-=======
 
 """
     manage.py
@@ -56,37 +55,37 @@ from app.models import User, Role
 
 import sys
 from app import app
-from flask.ext.script import Manager, Shell
+from flask_script import Manager, Shell
 
 """编码设置"""
->>>>>>> ec2645b42e8d0b874bf3ca3e57dd7dd3e98d9fb0
+# >>>>>>> ec2645b42e8d0b874bf3ca3e57dd7dd3e98d9fb0
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
 
 manager = Manager(app)
-<<<<<<< HEAD
+# <<<<<<< HEAD
 migrate = Migrate(app, db)
-=======
->>>>>>> ec2645b42e8d0b874bf3ca3e57dd7dd3e98d9fb0
+# =======
+# >>>>>>> ec2645b42e8d0b874bf3ca3e57dd7dd3e98d9fb0
 
 
 def make_shell_context():
     """自动加载环境"""
     return dict(
-<<<<<<< HEAD
+# <<<<<<< HEAD
         app = app,
         db = db,
         User = User,
         Role = Role
-=======
-        app=app
->>>>>>> ec2645b42e8d0b874bf3ca3e57dd7dd3e98d9fb0
+# =======
+#        app=app
+#>>>>>>> ec2645b42e8d0b874bf3ca3e57dd7dd3e98d9fb0
     )
 
 
 manager.add_command("shell", Shell(make_context=make_shell_context))
-<<<<<<< HEAD
+# <<<<<<< HEAD
 manager.add_command('db', MigrateCommand)
 
 
@@ -113,7 +112,7 @@ def admin():
     )
     db.session.add(u)
     db.session.commit()
-    print "<admin user %s add in database>" % username
+    print ("<admin user %s add in database>") % username
 
 
 @manager.command
@@ -132,9 +131,9 @@ def adduser():
     )
     db.session.add(u)
     db.session.commit()
-    print "<user %s add in database>" % username
-=======
->>>>>>> ec2645b42e8d0b874bf3ca3e57dd7dd3e98d9fb0
+    print ("<user %s add in database>") % username
+# =======
+# >>>>>>> ec2645b42e8d0b874bf3ca3e57dd7dd3e98d9fb0
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-# coding: utf-8
+'''# coding: utf-8
 from . import main
 from flask import render_template
 
@@ -12,7 +12,7 @@ def test():
 
 # 查看关注者路由 
 @main.route('/follwers/<username>')
-def followers(username) :
+def followers(username):
     user = User.query.filter_by(username=username).first()
     if user is None :
         flash('该用户不存在')
@@ -144,3 +144,4 @@ def like_post() :
             return 'like'
         else:
             return 'cancel'
+

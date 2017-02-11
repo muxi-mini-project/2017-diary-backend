@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from . import auth
+'''from . import auth
 from flask import render_template, url_for, redirect, flash
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import User
@@ -41,4 +41,4 @@ def register() :
         send_email(user.email,'确认帐号',)  # 是否需要邮箱验证 ? 待定 !  
         return redirect(url_for('main.index')) #转到首页? 存疑 
     return render_template(' ') #存疑 
-
+'''

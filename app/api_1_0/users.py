@@ -1,4 +1,4 @@
-coding : utf-8
+#coding: utf-8
 from  . import api 
 from app import  db 
 from flask import request,jsonify,Response
@@ -7,7 +7,7 @@ from app.models import User
 from app.decorators import admin_required
 
 #注册
-@api.route('/register',method='GET','POST')
+@api.route('/register',methods=['GET','POST'])
 @admin_required 
 def register() :
     if request.method == 'POST' :
@@ -22,6 +22,10 @@ def register() :
         return jsonify({
                         "created" :  user_id ,})
 
+@api.route('/hah',methods=['GET','POST'])
+def hah() :
+    return 'hah'
+
 #登录
 @api.route('/login',methods=['GET','POST'])
 def login() :
@@ -34,7 +38,7 @@ def login() :
         user_id = None
     if user is not None and user.verify_password(password) :
         login_user(user) 
-        token = user.generate_auth_token(expiration=60*60*6)
+        token = user.generate_auth_token()
         return jsonify ({
             
             "user_id" : user.id ,
