@@ -6,7 +6,7 @@ sql models
     -- http://flask-sqlalchemy.pocoo.org/2.1/
 
 """
-from flask import current_app , request
+from flask import current_app , request ,url_for
 from . import db, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, AnonymousUserMixin, current_user
@@ -69,7 +69,7 @@ class Follow(db.Model):
     __tablename__ = 'follows'
     follower_id = db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)
     followed_id = db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)
-    timestamp = db.Column(db.DateTime,default=datetime.utcnow()) #是否需要关注时间 ? 暂定
+#    timestamp = db.Column(db.DateTime,default=datetime.utcnow()) #是否需要关注时间 ? 暂定
 
 
 class User(db.Model, UserMixin):
@@ -143,9 +143,9 @@ class User(db.Model, UserMixin):
         if not self.is_following(user) :
             f = Follow(follower=self,followed=user)
             db.session.add(f)
-            db.seesion.commit()
+            db.session.commit()
 
-    def unfollow(self,user) :
+    def unfollow(self,user) :  
         f = self.followed.filter_by(followed_id=user.id).first()
         if f :
             db.session.delete(f)
@@ -194,6 +194,15 @@ class User(db.Model, UserMixin):
         if self.role_id == 2 :
             return True 
         return False
+
+    def validate_email(self,data) :
+        if User.query.filter_by(email=data).first() :
+            raise ValidationError('邮箱已被注册')
+
+    def validte_username(self,data) :
+        if User.query.filter_by(username=data).first() :
+            raise ValidationError('用户名已占用!')
+
 
 
 
@@ -245,7 +254,7 @@ class Post(db.Model):
     author_id = db.Column(db.Integer , db.ForeignKey('users.id'))
     comments = db.relationship('Comment',backref='post',lazy='dynamic')
     likes = db.relationship('Like',backref='post', lazy='dynamic')
-    picture = db.Column(db.PickleType) # ? 
+    picture = db.Column(db.String) # ? 
 
     
 
@@ -254,7 +263,7 @@ class Post(db.Model):
                 'url' : url_for('api.get_post',id=self.id , _external=True) ,
                 'body' : self.body , 
                 'timestamp' : self.timestamp ,
-                'author' : url_for('api.get_user',id=self.author_id,_external=True) ,
+                'author' : self.author_id , 
                 'comments' : url_for('api.get_post_comments',id=self.id ,_external=True) ,
                 'comment_count' : self.comments.count() ,
                 'like_count' : self.likes.count() ,
@@ -266,10 +275,8 @@ class Post(db.Model):
     @staticmethod 
     def from_json(json_post) :
         body = json_post.get('body')
-        timestamp = json_post.get('timestamp')
         picture = json_post.get('picture')
-        author = json_post.get('author') # ? 
-        return Post(body=body,timestamp=timestamp,picture=picture,author=author)
+        return Post(body=body,picture=picture)
         
     
 

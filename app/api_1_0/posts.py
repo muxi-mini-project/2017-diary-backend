@@ -3,9 +3,11 @@ from flask import jsonify , request , g , abort , url_for , current_app
 from ..  import db 
 from ..models import Post , Permission 
 from . import api 
+from app.decorators import login_required
 
 #上传日记
 @api.route('/edit_diary' ,methods=['POST','GET'])
+@login_required
 def new_post() :
     post = Post.from_json(request.json)
     post.author = g.current_user
@@ -45,6 +47,38 @@ def get_posts() :
 def get_post(id) :
     post = Post.query.get_or_404(id)
     return jsonify(post.to_json())
+
+#查看关注用户的日记 
+#@api.route()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

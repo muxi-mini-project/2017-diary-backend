@@ -14,8 +14,24 @@ def register() :
         email = request.get_json().get("email")
         password = request.get_json().get("password")
         username = request.get_json().get("username")
+       # try : 
+ #        User.validate_email(email) 
+  #      User.validate_username(username)
+       # except  :
+        #    return jsonify ({
+         #               "message" : 'hah'})
         user = User ( email=email ,
                       password=password)
+        try :
+            user.validate_email(email)
+        except :
+            return jsonify({ 
+                "message" : '邮箱已注册!'})
+        try :
+            user.validate_username(username)
+        except :
+            return jsonify({ 
+                "message" : '用户名已占用!'})
         db.session.add(user)
         db.session.commit()
         user_id=User.query.filter_by(email=email).first().id

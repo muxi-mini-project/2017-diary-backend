@@ -1,19 +1,25 @@
 #coding: utf-8
-from flask import url_for , flash , request , g 
-from flask_login import login_required , current_user
+from flask import url_for , flash , request , g ,jsonify
+from flask_login import  current_user
 from .. import db 
 from ..models import User 
 from . import api 
+from app.decorators import login_required
 
 #关注
-@api.route('/follow/<username>',methods=['POST','GET'])
+@api.route('/follow/<id>',methods=['POST','GET'])
 @login_required 
-def follow(username): 
-    user = User.query.filter_by(username=username).first()
-    if user is None : 
-        flash('该用户不存在.')
-    if current_user.is_following(user) :
-        flash('已关注该用户.')
-    current_user.follow(user)
-    flash('成功关注该用户!')
-    
+def follow(id): 
+    user = User.query.filter_by(id=g.current_user.id).first()
+    user.follow(User.query.filter_by(id=id).first())
+    return jsonify({ 
+           "message" : 'hah' })    
+
+#关注者 
+@api.route('/follower/<id>',methods=['GET'])
+@login_required
+def follower_of(id) :
+    user = User.query.filter_by(id=id).first()
+    followers = user.followers 
+    return jsonify({ 
+        "message" : [ item.follower_id for item in followers ] })
