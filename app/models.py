@@ -115,10 +115,6 @@ class User(db.Model, UserMixin):
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    def is_admin(self):
-        if self.role_id == 2:
-            return True
-        return False
 
     def __repr__(self):
         return "<User %r>" % self.username
@@ -183,6 +179,21 @@ class User(db.Model, UserMixin):
                 db.session.add(user)
                 db.session.commit()
 
+    @staticmethod
+    def verify_auth_token(token) :
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try : 
+            data = s.loads(token)
+            print 'hhahahha'
+            print data
+        except : 
+            return None
+        return User.query.get(data['id'])
+
+    def is_administrator(self) :
+        if self.role_id == 2 :
+            return True 
+        return False
 
 
 
