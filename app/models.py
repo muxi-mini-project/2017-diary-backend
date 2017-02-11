@@ -13,6 +13,7 @@ from flask_login import UserMixin, AnonymousUserMixin, current_user
 from wtforms.validators import Email
 from datetime import datetime
 from itsdangerous import JSONWebSignatureSerializer as Serializer
+from app.exceptions import ValidationError
 # permissions
 class Permission:
     """
@@ -197,12 +198,13 @@ class User(db.Model, UserMixin):
 
     def validate_email(self,data) :
         if User.query.filter_by(email=data).first() :
-            raise ValidationError('邮箱已被注册')
+            return False
+        return True
 
-    def validte_username(self,data) :
+    def validate_username(self,data) :
         if User.query.filter_by(username=data).first() :
-            raise ValidationError('用户名已占用!')
-
+            return False
+        return True
 
 
 

@@ -5,6 +5,7 @@ from flask import request,jsonify,Response
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import User
 from app.decorators import admin_required
+from app.exceptions import ValidationError
 
 #注册
 @api.route('/register',methods=['GET','POST'])
@@ -14,33 +15,19 @@ def register() :
         email = request.get_json().get("email")
         password = request.get_json().get("password")
         username = request.get_json().get("username")
-       # try : 
- #        User.validate_email(email) 
-  #      User.validate_username(username)
-       # except  :
-        #    return jsonify ({
-         #               "message" : 'hah'})
-        user = User ( email=email ,
-                      password=password)
-        try :
-            user.validate_email(email)
-        except :
+        
+        user = User(email=email,username=username,password=password)
+
+        if  user.validate_email(email) == False or user.validate_username(username) == False :
             return jsonify({ 
-                "message" : '邮箱已注册!'})
-        try :
-            user.validate_username(username)
-        except :
-            return jsonify({ 
-                "message" : '用户名已占用!'})
+                "message" : '用户名或邮箱已占用!'})
         db.session.add(user)
         db.session.commit()
         user_id=User.query.filter_by(email=email).first().id
         return jsonify({
                         "created" :  user_id ,})
 
-@api.route('/hah',methods=['GET','POST'])
-def hah() :
-    return 'hah'
+
 
 #登录
 @api.route('/login',methods=['GET','POST'])
