@@ -9,7 +9,7 @@ from .. import db
 def like_post() : 
     if request.method == 'POST' :
         like = Like()
-        like.post_id = int(request.get_json().get('post_id'))
+        like.post_id = request.get_json().get('post_id')
         db.session.add(like)
         db.session.commit()
         return jsonify({ 'status' : 200 

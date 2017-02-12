@@ -157,8 +157,8 @@ class User(db.Model, UserMixin):
 
     def is_followed_by(self,user) :
         return self.followers.filter_by(follower_id=user.id).first() is not  None
-  
-   # 点赞
+    '''
+    # 点赞
     def vote_post(self, post):
         vote = self.voted_posts.filter_by(post_id=post.id).first()
         if vote is None:
@@ -170,7 +170,7 @@ class User(db.Model, UserMixin):
             db.session.delete(vote)
             db.session.commit()                                                                                    
             return False
-
+    '''
     #关注自己
     @staticmethod 
     def add_self_follows() :
@@ -225,27 +225,11 @@ class Comment(db.Model):
     timestamp = db.Column(db.DateTime,index=True,default=datetime.utcnow)
     author_id = db.Column(db.Integer,db.ForeignKey('users.id'))
     post_id = db.Column(db.Integer,db.ForeignKey('posts.id'))
-
-    def to_json(self) :
-        json_comment = { 
-            'url' : url_for('api.get_comment',id=self.id,_external=True) ,
-            'post' : url_for('api.get_post',id=self.post_id,_external=True) ,
-            'body' : self.body ,
-            'timestamp' : self.timestamp ,
-            'author' : url_for('api.get_user',id =
-                self.author_id,_external=True) ,
-                
-                }
-        return json_comment
-
-    @staticmethod 
-    def from_json(json_comment) :
-        body = json_comment.get('body')
-        timestamp = json_comment.get('timestamp')
-        author = json_commnet.get('author')
-        return Comment(body=body,timestamp=timestamp,author=author)
+#    comment_id = db.Column(db.Integer,default=-1)
 
 
+    def __repr__(self) :
+        return '<Comment %r>' % self.id
 
 
 class Post(db.Model):

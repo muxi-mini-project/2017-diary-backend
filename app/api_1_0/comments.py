@@ -1,13 +1,16 @@
 #coding: utf-8
-from flask import jsonify , request , g , url_for , current_app
+from flask import jsonify , request , g , url_for , current_app , Response  
+from flask_login import current_user
 from .. import db
 from ..models import Post ,Comment 
 from . import api
 from app.decorators import login_required
+import json 
+
 
 
 #某篇日记的所有评论
-@api.route('/posts/<int:id>/comments_view',methods=['POST'])
+@api.route('/posts/<int:id>/comments_view',methods=['GET'])
 def get_post_comments(id) :
     post = Post.query.get_or_404(id)
     page = request.args.get('page',1,type=int)
@@ -35,20 +38,19 @@ def get_post_comments(id) :
 
 
 
-# 发评论 , 需不需要验证权限 ?????
-@api.route('/posts/<int:id>/comments',methods=['POST'])
-@login_required
-def new_post_comment(id) :
-    post = Post.query.get_or_404(id)
-    comment = Comment.from_json(request.json)
-    comment.author = g.current_user
-    comment.post = post
-    db.session.add(comment)
-    db.session.commit()
-    return jsonify(comment.to_json()) , 201, \
-            {'Location' : url_for('api.get_post_commets' , id = comment.id ,
-                          _external = True )}
+@api.route('/comments',methods=['POST','GET'])
+def new_post_comment() :
+    if request.method == 'POST' :
+        comment = Comment()
+        comment.post_id = request.get_json().get("post_id") #被评论的文章的id
+        comment.body = request.get_json().get('body')
+        comment.author_id = request.get_json().get('author_id') #评论者的id
+       # comment.comment_id = request.get_json().get('comment_id') 
 
+        db.session.add(comment)
+        db.session.commit()
+        return Response(json.dumps({
+            "message" : "successful add a comment "}), mimetype='application/json')
 
 
 
