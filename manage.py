@@ -53,10 +53,6 @@ from app.models import User, Role
             -d 开启调试模式
 """
 
-import sys
-from app import app
-from flask_script import Manager, Shell
-
 """编码设置"""
 # >>>>>>> ec2645b42e8d0b874bf3ca3e57dd7dd3e98d9fb0
 reload(sys)

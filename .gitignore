@@ -1,0 +1,4 @@
+migrations/
+vnev/
+data-dev.sqlite
+**/*.pyc
